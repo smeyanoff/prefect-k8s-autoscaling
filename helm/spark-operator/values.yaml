@@ -1,0 +1,45 @@
+
+spark:
+  jobNamespaces:
+  - "spark"
+  - "prefect"
+  serviceAccount:
+    # -- Create a service account for spark apps
+    create: true
+    # -- Optional name for the spark service account
+    name: "spark-service-account"
+    # -- Optional annotations for the spark service account
+
+controller:
+  uiService:
+    # -- Enable UI service creation for Spark application
+    enable: false
+  
+  serviceAccount:
+    # -- Create a service account for the operator
+    create: true
+    # -- Optional name for the operator service account
+    name: "sparkoperator-service-account"
+    # -- Optional annotations for the operator service account
+    annotations: {}
+  
+
+  resources: 
+    limits:
+      cpu: 300m
+      memory: 500Mi
+    requests:
+      cpu: 300m
+      memory: 500Mi
+
+  webhook:
+    enable: true
+
+image:
+  # -- Image registry.
+  registry: docker.io
+  # -- Image repository.
+  repository: kubeflow/spark-operator
+  # -- Image tag.
+  # @default -- If not set, the chart appVersion will be used.
+  tag: "2.0.2"

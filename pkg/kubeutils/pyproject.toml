@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "kubeutils"
+version = "1.0.9"
+description = "Library for kubernetes purposes"
+authors = ["Dmitry Nesmeyanov <Nesmeyanov.DV@avgd.pro>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+kubernetes = ">=24.2.0"
+python-interface = "^1.6.1"
+hiyapyco = "^0.6.1"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.5.2"
+
+[tool.poetry.group.addons.dependencies]
+pre-commit = "^3.7.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

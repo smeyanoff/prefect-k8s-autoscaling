@@ -1,0 +1,57 @@
+---
+### https://docs.prefect.io/latest/guides/deployment/kubernetes/#define-a-prefect-deployment
+### https://docs.prefect.io/latest/guides/prefect-deploy/#creating-work-pool-based-deployments-with-prefectyaml
+### https://prefecthq.github.io/prefect-docker/deployments/steps/#prefect_docker.deployments.steps.BuildDockerImageResult
+### https://docs.prefect.io/latest/guides/prefect-deploy/#templating-options
+
+# Generic metadata about this project
+name: '{{ $DEPLOYMENT_NAME }}'
+prefect-version: '{{ $PREFECT_VERSION }}'
+# build section allows you to manage and build docker images
+build:
+  - prefect_docker.deployments.steps.build_docker_image:
+      id: build-image
+      image_name: '{{ $REGISTRY }}/{{ $DEPLOYMENT_NAME }}'
+      tag: '{{ $DEPLOYMENT_TAG }}'
+      dockerfile: Dockerfile
+push:
+  - prefect_docker.deployments.steps.push_docker_image:
+      image_name: '{{ build-image.image_name }}'
+      tag: '{{ build-image.tag }}'
+pull:
+  - prefect.deployments.steps.set_working_directory:
+      directory: /opt/prefect
+# the definitions section allows you to define reusable components for your deployments
+definitions:
+  tags: &common_tags [spark, '{{ $PREFECT_WORK_POOL_NAME }}']
+  work_pool: &common_work_pool
+    name: '{{ $PREFECT_WORK_POOL_NAME }}'
+    work_queue_name: default
+    job_variables:
+      image: '{{ build-image.image }}'
+      env:
+        DEPLOYMENT_NAME: '{{ $DEPLOYMENT_NAME }}'
+        DEPLOYMENT_TAG: '{{ build-image.tag }}'
+        PREFECT_WORK_POOL_NAME: '{{ $PREFECT_WORK_POOL_NAME }}'
+  parameters: &parameters
+    based_manifest_name: spark_based.yaml  # Чтобы использовать базовый манифест, необходимо явно передать application_manifest_name
+    application_manifest_name:  # имя yaml манифеста в src/manifests. Не забудь расширение файла
+    application_script_name: spark_application.py  # имя скрипта в src/application. Не забудь расширение файла
+    application_namespace: spark  # namespace в котором будет развертываться приложение
+    running_timeout_s: 3600  # timeout running скрипта в секундах
+    pending_timeout_s: 3600  # timeout pending скрипта в секундах
+# the deployments section allows you to provide configuration for deploying flows
+deployments:
+  - name: '{{ $DEPLOYMENT_NAME }}'
+    version: '{{ build-image.tag }}'
+    description:
+    tags: *common_tags
+    work_pool: *common_work_pool
+      # flow-specific fields
+    entrypoint: src/flows/flow.py:spark_kubernetes_flow
+    parameters: *parameters
+    # schedule:
+    #   type: cron
+    #   cron: 0 0 1 * *
+    #   timezone: Europe/Moscow
+    #   active: '{{ $SCHEDULE_IS_ACTIVE }}'  # SCHEDULE_IS_ACTIVE true в ветке main, false в test

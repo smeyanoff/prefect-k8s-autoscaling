@@ -1,0 +1,46 @@
+---
+ingress:
+  enabled: true
+  host:
+    hostname: "prefect.ons.vita.local"
+    path: "/"
+  className: "nginx"
+  selfSigned: false
+  annotations:
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+  tls: false
+
+postgresql:
+  enabled: true
+  primary:
+    persistence:
+      enabled: true
+
+server:
+  replicaCount: 1
+  autoscaling:
+    enabled: false
+    maxReplicas: 3
+  uiConfig:
+    prefectUiUrl: "https://prefect.ons.vita.local"
+    prefectUiApiUrl: "https://prefect.ons.vita.local/api"
+  env: []
+  image: 
+    repository: "prefecthq/prefect" # "dockerhub.timeweb.cloud/prefecthq/prefect"
+    prefectTag: "2.20.13-python3.10-kubernetes"
+  resources:
+    # -- the requested resources for the server container
+    requests:
+      cpu: 300m
+      memory: 500Mi
+    # -- the requested limits for the server container
+    limits:
+      cpu: 300m
+      memory: 500Mi
+  debug: false
+  readinessProbe:
+    config:
+      timeoutSeconds: 180
+
+service:
+  type: ClusterIP

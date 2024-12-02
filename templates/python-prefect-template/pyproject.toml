@@ -1,0 +1,32 @@
+[tool.poetry]
+name = "python-prefect-template"
+authors = ["Nesmeyanov Dmitry <nesmeyanov.dv@avgd.pro>"]
+readme = "README.md"
+package-mode = false
+version = "3.1.2"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+boto3 = "^1.35.65"
+kubeutils = {version = "^0.4.8", source = "kubeutils"}
+
+[tool.poetry.group.addons.dependencies]
+pre-commit = "^3.7.1"
+
+[tool.poetry.group.build.dependencies]
+requests = "<2.32.0"
+prefect = "^2.0"
+prefect-kubernetes = "^0.3.11"
+prefect-docker = "^0.5.3"
+
+[tool.poetry.group.lint.dependencies]
+ruff = "^0.5.2"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+
+[[tool.poetry.source]]
+name = "kubeutils"
+url = ""
+priority = "supplemental"

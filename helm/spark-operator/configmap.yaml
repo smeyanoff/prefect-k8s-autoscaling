@@ -1,0 +1,32 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  namespace: spark
+  name: configmap-manager
+rules:
+- apiGroups: [""]
+  resources: ["pesistentvolumeclaims"]
+  verbs: ["delete", "deletecollection"]
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "create", "update", "patch", "delete", "deletecollection"]
+
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: configmap-manager-binding
+  namespace: spark
+subjects:
+- kind: ServiceAccount
+  name: sparkoperator-service-account
+  namespace: spark
+roleRef:
+  kind: Role
+  name: configmap-manager
+  apiGroup: rbac.authorization.k8s.io
